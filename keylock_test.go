@@ -1,4 +1,4 @@
-package keylocker
+package keylock
 
 import (
 	"sync"
