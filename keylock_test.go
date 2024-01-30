@@ -6,7 +6,7 @@ import (
 )
 
 func TestKeyMutex(t *testing.T) {
-	keyMutex := NewKeyLock(512)
+	keyMutex := New(512)
 
 	var count = 0
 
@@ -34,7 +34,7 @@ func TestKeyMutex(t *testing.T) {
 }
 
 func BenchmarkKeyLock(b *testing.B) {
-	keyMutex := NewKeyLock(512)
+	keyMutex := New(512)
 
 	var wg sync.WaitGroup
 

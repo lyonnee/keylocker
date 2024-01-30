@@ -24,7 +24,7 @@ type KeyLock struct {
 }
 
 // the higher the n-value, the smaller the probability of lock collision
-func NewKeyLock(n int) KeyLocker {
+func New(n int) KeyLocker {
 	if n <= 0 {
 		n = 512 // use 4kb memory in 64bit system
 	}
