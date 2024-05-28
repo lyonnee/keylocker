@@ -3,16 +3,22 @@
 
 # KeyLock
 
-| English | [中文](README.md) |
+| English | [中文](README_zh.md) |
 | --- | --- |
 
-KeyLock is a concurrency-safe key lock manager library written in Go. It can be used to create and manage `ReadWriteLocks`, and dynamically obtain the lock needed through the key.
+`KeyLock` is a high-performance and scalable key-value lock library that supports concurrent lock operations for different types of keys. This library provides a key-based locking mechanism, allowing lock operations using key types such as strings and integers, suitable for scenarios that require high concurrency and fine-grained lock control.
 
 </div>
 
-## Get KeyLock
+## Features
+- High Performance: Uses a pre-allocated array of locks to reduce lock contention.
+- Generic Support: Introduces generic features to implement lock support for different types of keys.
+- Scalability: Easy to add support for other types of keys.
+- Easy to Use: Provides a unified interface for easy use and integration.
 
-You can download KeyLock to your project with the following command.
+## Getting KeyLock
+
+Download and install KeyLock using the go get command:
 
 ```bash
 go get github.com/lyonnee/keylock
@@ -22,38 +28,29 @@ go get github.com/lyonnee/keylock
 
 Here is a simple example of how to use KeyLock.
 
+### String Lock
 ```go
-package main
-
-import (
-	"fmt"
-	"sync"
-	"time"
-
-	"github.com/lyonnee/keylock"
-)
-
 func main() {
-    // Create a KeyLocker with a length of 512.
-	keylocker := keylock.NewKeyLock(512)
+    // Create a string key-value lock
+    textLocker := keylock.NewTextLocker[string](10)
 
-    key := "myKey"
-
-    // Use KeyLocker's Lock method to get the ReadWriteLock corresponding to the key and lock it
-	m := keylocker.Lock(key)
-
-    // Example: perform some operations
-    fmt.Println("do something...")
-    time.Sleep(time.Second)
-
-    // Use Unlock method to release the ReadWriteLock corresponding to the key
-	m.Unlock()
+    // Lock a string key
+    l := textLocker.Lock("exampleKey")
+    defer l.Unlock("exampleKey")
 }
 ```
 
-In the above code, we first create a new KeyLocker instance (storing 512 ReadWriteLocks) via `keylocker.NewKeyLock(512)`, then we take out a ReadWriteLock associated with the specified key and lock it via `keylocker.Lock(key)`. After performing necessary operations, we unlock the ReadWriteLock via the `m.Unlock()` method.
+### Numeric Lock
+```go
+func main() {
+    // Create an integer key-value lock
+    numLocker := keylock.NewNumberLocker[int](512)
 
-At the same time, KeyLocker uses the global lock `sync.Mutex` to ensure concurrency safety, and it uses hash to manage keys. In this way, the ReadWriteLocks corresponding to different keys will not affect each other, making it suitable for scenarios where concurrent processing of multiple tasks is required.
+    // Lock a numeric key
+    l := numLocker.Lock(123)
+    defer l.Unlock(123)
+}
+```
 
 ## Questions?
 

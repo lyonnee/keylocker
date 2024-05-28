@@ -6,13 +6,19 @@
 | [English](README.md) | 中文 |
 | --- | --- |
 
-KeyLock是一个使用Go语言编写的并发安全的键锁管理器库。它可以用来创建和管理`读写锁`，并通过键来动态获取当前需要的锁。
+`KeyLock` 是一个高性能且可扩展的键值锁库，支持针对不同类型键值的并发锁操作。该库提供了一种基于键值的锁机制，允许使用字符串、整数等键值类型进行锁操作，适用于需要高并发和细粒度锁控制的场景。
 
 </div>
 
+## 特性
+- 高性能：使用预分配的锁数组减少锁争用。
+- 泛型支持：通过引入的泛型特性，实现对不同类型键值的锁支持。
+- 扩展性：可以轻松添加对其他类型键值的支持。
+- 简单易用：提供统一的接口，便于使用和集成。
+
 ## 获取KeyLock
 
-您可以通过以下命令将KeyLock下载到您的项目中。
+使用 go get 下载和安装 KeyLock：
 
 ```bash
 go get github.com/lyonnee/keylock
@@ -22,38 +28,29 @@ go get github.com/lyonnee/keylock
 
 以下是如何使用KeyLock的一个简单例子。
 
+### 字符串锁
 ```go
-package main
-
-import (
-	"fmt"
-	"sync"
-	"time"
-
-	"github.com/lyonnee/keylock"
-)
-
 func main() {
-    // 创建一个长度为512的KeyLocker。
-	keylocker := keylock.NewKeyLock(512)
+	// 创建一个字符串键值锁
+	textlocker := keylock.NewTextLocker[string](10)
 
-    key := "myKey"
-
-    // 使用KeyLocker的Lock方法获取对应键的读写锁并锁定
-	m := keylocker.Lock(key)
-
-    // 举例说明：做一些操作
-    fmt.Println("do something...")
-    time.Sleep(time.Second)
-
-    // 使用Unlock方法释放对应键的读写锁
-	m.Unlock()
+	// 锁定一个字符串键值
+	l := textlocker.Lock("exampleKey")
+	defer l.Unlock("exampleKey")
 }
 ```
 
-在上述代码中，我们首先通过`keylocker.NewKeyLock(512)`创建一个新的KeyLocker实例(存储512个读写锁），之后通过`keylocker.Lock(key)`取出了一个与指定键关联的读写锁并锁定了它。进行必要的操作后，我们通过`m.Unlock()`方法来解锁该读写锁。
+### 数值锁
+```go
+func main() {
+	// 创建一个整数键值锁
+	numLocker := keylock.NewNumberLocker[int](512)
 
-同时，KeyLocker使用全局锁`sync.Mutex`来保证并发安全，它采用了哈希的方式来对键进行管理。通过这种方式，不同的键对应的读写锁不会相互影响，这使得它适合于需要并发处理多任务的场景。
+	// 锁定一个数值键值
+	l := locker.Lock(123)
+	defer l.Unlock(123)
+}
+```
 
 ## 有问题?
 

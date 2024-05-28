@@ -6,7 +6,7 @@ import (
 )
 
 func TestKeyMutex(t *testing.T) {
-	keyMutex := New(512)
+	keyMutex := NewTextLocker[[]byte](512)
 
 	var count = 0
 
@@ -18,9 +18,9 @@ func TestKeyMutex(t *testing.T) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			keyMutex.Lock("a")
+			keyMutex.Lock([]byte("a"))
 			count += i
-			keyMutex.Unlock("a")
+			keyMutex.Unlock([]byte("a"))
 		}(i)
 	}
 
@@ -34,18 +34,17 @@ func TestKeyMutex(t *testing.T) {
 }
 
 func BenchmarkKeyLock(b *testing.B) {
-	keyMutex := New(512)
+	keyMutex := NewNumberLocker[int](512)
 
 	var wg sync.WaitGroup
 
-	for j := 0; j < 255; j++ {
-		k := string((rune)(j))
+	for j := -100; j < 255; j++ {
 		var count = 0
 		for i := 0; i <= b.N; i++ {
 			wg.Add(1)
 			go func(i int) {
 				defer wg.Done()
-				l := keyMutex.Lock(k)
+				l := keyMutex.Lock(j)
 				count += i
 				l.Unlock()
 			}(i)
